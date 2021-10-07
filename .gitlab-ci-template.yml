@@ -1,0 +1,32 @@
+.python-test:
+  image: bash
+  script:
+    - echo "Testing all the code JUnit/pytest/mocha ......"
+
+.notify:
+  image: bash
+  script:
+    - echo "Notify all the people that need to know about this project using some tool like Slack/Mattermost/RocketChat/MSTeams..."
+
+.containerize:
+  image: gcr.io/kaniko-project/executor
+  entrypoint: [""]
+  script:
+    - echo "{\"auths\":{\"$CI_REGISTRY\":{\"username\":\"$CI_REGISTRY_USER\",\"password\":\"$CI_REGISTRY_PASSWORD\"}}}" > /kaniko/.docker/config.json
+    - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile Dockerfile --destination $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA
+
+# https://docs.gitlab.com/ee/user/project/clusters/#gitlab-managed-clusters
+# https://docs.gitlab.com/ee/user/project/clusters/deploy_to_cluster.html#deployment-variables
+.deployment:
+  image: dxas90/ci-tools:v0.0.2
+  script:
+    - curl -sLo /usr/local/bin/version-validator https://gist.githubusercontent.com/dxas90/809116d5d3b478665979b78c251e53c1/raw/19c07dd0d725ffdac986a5c34b8aa7215a92e082/validate-version.sh
+    - chmod +x /usr/local/bin/version-validator
+    - version-validator ${CI_COMMIT_TAG}
+    - crane auth login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - crane copy $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA $CI_REGISTRY_IMAGE:$CI_COMMIT_TAG
+    - cd k8s/overlays/prod
+    - kustomize edit set image $CI_REGISTRY_IMAGE:v$CI_COMMIT_TAG
+    - kubectl -n $KUBE_NAMESPACE apply -k k8s/overlays/prod
+    - echo "Any other custom logic that needs to be done"
+    - kubectl -n $KUBE_NAMESPACE rollout status deployment network-stats

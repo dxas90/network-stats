@@ -1,0 +1,35 @@
+# https://docs.gitlab.com/ee/ci/yaml/includes.html
+include:
+  - project: dxas90/network-stats
+    file: .gitlab-ci-template.yml
+
+variables:
+  IMAGE_NAME: network-stats
+
+stages:
+  - test
+  - containerize
+  - deployment
+  - notify
+
+test-code:
+  stage: test
+  extends: .python-test
+
+containerize:
+  stage: containerize
+  extends: .containerize
+
+deployment:
+  stage: deployment
+  extends: .deployment
+  environment:
+    name: prod
+  only:
+    - tags
+  except:
+    - branches
+
+notify:
+  stage: notify
+  extends: .notify

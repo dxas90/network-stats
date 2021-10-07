@@ -14,7 +14,7 @@
 
 ## Description
 
-Just a small program using Python language that prints every 30 seconds (configurable through the `INTERVAL` env var) the following data in json format: RX/TX packets, bytes and errors of the default network interface.
+Just a [small program](./app.py) using Python language that prints every 30 seconds (configurable through the `INTERVAL` env var) the following data in json format: RX/TX packets, bytes and errors of the default network interface.
 
 sample output
 
@@ -61,7 +61,7 @@ curl http://0.0.0.0:5000/ | jq # jq must be installed (no needed)
 
 ## Monitoring
 
-TODO
+The [application expose](./app.py#L59) a dummy healthcheck under the following path http://0.0.0.0:5000/healthz
 
 ## Maintainers
 
@@ -71,4 +71,7 @@ TODO
 
 ## Original Resources
 
-TODO
+- [.gitlab-ci-template.yml](https://github.com/dxas90/learn/blob/develop/.gitlab-ci-template.yml)
+- [.gitlab-ci.yml](https://github.com/dxas90/learn/blob/develop/.gitlab-ci.yml)
+- [Dockerfile](https://github.com/dxas90/hugtor/blob/main/Dockerfile)
+- [gunicorn](https://github.com/dxas90/hugtor/blob/main/gunicorn.conf.py)
