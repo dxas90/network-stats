@@ -1,6 +1,6 @@
 SHELL=/bin/bash -o pipefail
 APP_NAME = network-stats
-DOCKER_REPO = tig.ridewithvia.net/candidates/daniel-ramirez-101125087002-4rle
+DOCKER_REPO = dxas90/network-stats
 BIN_PLATFORMS := python
 # This version-strategy uses git tags to set the version string
 git_branch	   := $(shell git rev-parse --abbrev-ref HEAD)

@@ -51,6 +51,24 @@ gunicorn -c gunicorn_config.py app:app
 # now you should be able to access the web api through http://0.0.0.0:5000/
 ```
 
+and for the deployment to kubernetes I strongly recommend you to use kustomize
+
+```sh
+cd /path/to/the/project/
+# if you wanna change the image use the command  kustomize edit set image <image>=<newimage>:<newtag>
+# default files
+kubectl apply -k k8s
+# Overlays
+kubectl apply -k k8s/overlays/dev/
+```
+
+if you only want to test the application you can deploy the [`minimal_k8s.yaml`](./k8s/minimal_k8s.yaml) file after checking that the [deployment image](./k8s/minimal_k8s.yaml#L46) is pointing to the correct value
+
+```sh
+cd /path/to/the/project/
+kubectl apply -f k8s/minimal_k8s.yaml  # notice the difference with -f instad of -k
+```
+
 ## Usage
 
 just use the browser to http://0.0.0.0:5000/ or you can also use `curl` :)
@@ -75,3 +93,6 @@ The [application expose](./app.py#L59) a dummy healthcheck under the following p
 - [.gitlab-ci.yml](https://github.com/dxas90/learn/blob/develop/.gitlab-ci.yml)
 - [Dockerfile](https://github.com/dxas90/hugtor/blob/main/Dockerfile)
 - [gunicorn](https://github.com/dxas90/hugtor/blob/main/gunicorn.conf.py)
+- [version-validation](https://gist.github.com/dxas90/809116d5d3b478665979b78c251e53c1)
+- [minimal_k8s.yaml](https://github.com/dxas90/learn/blob/e689ce5de0c81cdf5ad27719d9e7b784c9f949d0/k8s/deployment.yaml)
+- [k8s](https://github.com/dxas90/learn/tree/develop/k8s)

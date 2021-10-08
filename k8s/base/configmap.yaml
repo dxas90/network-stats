@@ -1,0 +1,13 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: network-stats-config
+data:
+  APP_ENV: prod
+  APP_THREADS: "1"
+  INTERVAL: "30"
+  LOGLEVEL: info
+  MAILER_URL: "smtp://mail-server:1025"
+  MONGODB_URL: "mongodb://mongodb:27017"
+  REDIS_DSN: "redis://redis:6379?timeout=0.5"

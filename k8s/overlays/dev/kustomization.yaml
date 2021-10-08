@@ -1,0 +1,17 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+patchesStrategicMerge:
+  - ./deployment-patch.yaml
+
+resources:
+  - ../../base/
+
+images:
+  - name: dxas90/network-stats
+    newTag: test
+
+generatorOptions:
+  annotations:
+    note: generated
+  disableNameSuffixHash: true
