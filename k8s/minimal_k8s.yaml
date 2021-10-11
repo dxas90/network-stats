@@ -3,15 +3,15 @@ kind: Service
 metadata:
   creationTimestamp: null
   labels:
-    challenge.app: ridewithvia
-  name: ridewithvia
+    challenge.app: network-stats
+  name: network-stats
 spec:
   ports:
     - name: "web"
       port: 80
       targetPort: web # line 49
   selector:
-    challenge.app: ridewithvia
+    challenge.app: network-stats
 status:
   loadBalancer: {}
 ---
@@ -20,13 +20,13 @@ kind: Deployment
 metadata:
   creationTimestamp: null
   labels:
-    challenge.app: ridewithvia
-  name: ridewithvia
+    challenge.app: network-stats
+  name: network-stats
 spec:
   replicas: 2
   selector:
     matchLabels:
-      challenge.app: ridewithvia
+      challenge.app: network-stats
   strategy:
     type: RollingUpdate
     rollingUpdate:
@@ -35,18 +35,18 @@ spec:
   template:
     metadata:
       labels:
-        challenge.app: ridewithvia
+        challenge.app: network-stats
         team: DevOps
     spec:
       containers:
-        - name: ridewithvia
+        - name: network-stats
           envFrom:
             - configMapRef:
-                name: ridewithvia-config
-          image: dxas90/network-stats:latest # original imagen just in case that someone needs it
+                name: network-stats-config
+          image: dxas90/network-stats:cgi # original imagen just in case that someone needs it
           ports:
             - name: web
-              containerPort: 5000 # line 12
+              containerPort: 5000 # line 11
               protocol: TCP
           resources:
             limits:
@@ -55,33 +55,16 @@ spec:
             requests:
               cpu: 10m
               memory: 56Mi
-          livenessProbe:
-            httpGet:
-              path: /healthz
-              port: 8080
-            initialDelaySeconds: 3
-            periodSeconds: 3
-            failureThreshold: 2
-          terminationMessagePath: /dev/termination-log
-          terminationMessagePolicy: File
-      terminationGracePeriodSeconds: 30
-      dnsPolicy: ClusterFirst
-      securityContext: {}
-      # https://kubernetes.io/docs/concepts/containers/images/#referring-to-an-imagepullsecrets-on-a-pod
-      # imagePullSecrets:
-      #   - name: pull-registry
       restartPolicy: Always
 status: {}
 ---
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: ridewithvia-config # line 49
+  name: network-stats-config # line 45
 data:
   APP_ENV: prod
-  APP_THREADS: "1"
   INTERVAL: "30"
-  LOGLEVEL: info
   MAILER_URL: "smtp://mail-server:1025"
   MONGODB_URL: "mongodb://mongodb:27017"
   REDIS_DSN: "redis://redis:6379?timeout=0.5"

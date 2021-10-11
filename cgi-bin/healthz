@@ -1,0 +1,14 @@
+#!/bin/bash
+
+set -euo pipefail
+IFS=$'\n\t'
+
+DEFAULT_IFACE=$(ip route | grep "default" | head -n 1 | cut -d ' ' -f 5)
+
+function health_check(){
+  echo "Content-type: application/json"
+  echo ""
+  printf "{\"alive\": true,\"iface\" : \"${DEFAULT_IFACE}\"}"
+}
+
+health_check
