@@ -16,7 +16,6 @@
   image: quay.io/buildah/stable:latest
   stage: containerize
   variables:
-    # Rootless-friendly Buildah configuration
     STORAGE_DRIVER: vfs
     BUILDAH_FORMAT: docker
     BUILDAH_ISOLATION: chroot
@@ -44,7 +43,7 @@
       fi
     - echo "Using Dockerfile: $DOCKERFILE_PATH"
 
-    # Determine image tag logic if none provided
+    # Determine image tag
     - |
       if [ -z "${IMAGE_TAG+x}" ]; then
         if [ "$CI_COMMIT_REF_NAME" = "$CI_DEFAULT_BRANCH" ]; then
@@ -62,10 +61,10 @@
       fi
     - echo "Building image: $IMAGE_TAG"
 
-    # Login to registry
+    # Buildah login
     - buildah login -u "$REGISTRY_USER" --password "$REGISTRY_PASSWORD" "$REGISTRY"
 
-    # Build and push steps—context is last argument!
+    # Single-line build and push
     - |
       buildah bud \
         --isolation="$BUILDAH_ISOLATION" \
@@ -73,10 +72,8 @@
         --format="$BUILDAH_FORMAT" \
         --tls-verify=false \
         -f "$DOCKERFILE_PATH" \
-        -t "$IMAGE_TAG" \
-        $BUILDAH_ARGS \
+        -t "$IMAGE_TAG" $BUILDAH_ARGS \
         "$BUILD_CONTEXT"
-
     - |
       if [ -z "$NO_PUSH" ]; then
         echo "Pushing image to registry..."
