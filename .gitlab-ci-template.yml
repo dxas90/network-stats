@@ -37,11 +37,11 @@
         elif [ -f "$BUILD_CONTEXT/Containerfile" ]; then
           DOCKERFILE_PATH="$BUILD_CONTEXT/Containerfile"
         else
-          echo "ERROR: No Dockerfile or Containerfile found in build context"
+          echo "ERROR -> No Dockerfile or Containerfile found in build context"
           exit 1
         fi
       fi
-    - echo "Using Dockerfile: $DOCKERFILE_PATH"
+    - echo "Using Dockerfile -> $DOCKERFILE_PATH"
 
     # Determine image tag
     - |
@@ -59,7 +59,7 @@
         fi
         export IMAGE_TAG="$IMAGE_REPOSITORY:$VERSION"
       fi
-    - echo "Building image: $IMAGE_TAG"
+    - echo "Building image -> $IMAGE_TAG"
 
     # Buildah login
     - buildah login -u "$REGISTRY_USER" --password "$REGISTRY_PASSWORD" "$REGISTRY"
