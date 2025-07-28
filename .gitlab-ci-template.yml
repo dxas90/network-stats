@@ -14,28 +14,27 @@
 # Containerize the app using Buildah instead of Kaniko
 .containerize:
   variables:
-    # Use VFS to avoid overlay-on-overlay issues in Docker executor environments
     STORAGE_DRIVER: vfs
     BUILDAH_IMAGE: quay.io/buildah/stable:latest
     BUILDAH_FORMAT: docker
+    BUILDAH_BUILD_CONTEXT: $CI_PROJECT_DIR
     BUILDAH_ARGS: ""
   image:
     name: "$BUILDAH_IMAGE"
     entrypoint: [""]
+
   script:
-    # Authenticate with GitLab Container Registry
     - buildah login --tls-verify=false -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" "$CI_REGISTRY"
 
-    # Build image using Dockerfile in the root of the project
     - buildah bud \
         --storage-driver="$STORAGE_DRIVER" \
         --format="$BUILDAH_FORMAT" \
         --tls-verify=false \
-        -f Dockerfile \
+        -f "$DOCKERFILE_PATH" \
         -t "$CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA" \
-        .
+        $BUILDAH_ARGS \
+        "$BUILDAH_BUILD_CONTEXT"
 
-    # Push the image to the GitLab Container Registry
     - buildah push --tls-verify=false "$CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA"
 
 # Deploy the tagged image using Kustomize and kubectl
