@@ -1,20 +1,49 @@
-FROM python:3.14-slim
+# syntax=docker/dockerfile:1
+# Use a build argument to easily switch Python versions
+ARG PYTHON_VERSION=3.14
+FROM python:${PYTHON_VERSION}-slim AS base
 
-ENV PYTHONDONTWRITEBYTECODE 1
-ENV PYTHONUNBUFFERED 1
+# Prevent Python from writing .pyc files
+ENV PYTHONDONTWRITEBYTECODE=1
 
-RUN mkdir -p /app
+# Prevent Python from buffering stdout and stderr (better logging)
+ENV PYTHONUNBUFFERED=1
+
+# Set working directory
 WORKDIR /app
 
-COPY requirements.txt /app/requirements.txt
-COPY app.py /app/app.py
-COPY gunicorn_config.py /app/gunicorn_config.py
+# Create a non-privileged user to run the app
+ARG UID=10001
+RUN adduser \
+    --disabled-password \
+    --gecos "" \
+    --home "/nonexistent" \
+    --shell "/sbin/nologin" \
+    --no-create-home \
+    --uid "${UID}" \
+    appuser
 
-RUN pip install --no-cache-dir -r /app/requirements.txt && \
-    chmod 755 -R /app/*
+# Install system dependencies (only what's needed for pip builds)
+RUN apt update && \
+    apt install -y --no-install-recommends gcc python3-dev && \
+    apt clean && rm -rf /var/lib/apt/lists/*
 
-ENV LOGLEVEL WARNING
+# Install Python dependencies using cache mounts for faster rebuilds
+RUN --mount=type=cache,target=/root/.cache/pip \
+    --mount=type=bind,source=requirements.txt,target=requirements.txt \
+    python -m pip install --no-cache-dir -r requirements.txt
 
+# Switch to the non-privileged user
+USER appuser
+
+# Copy application source code
+COPY . .
+
+# Set default log level
+ENV LOGLEVEL=WARNING
+
+# Expose the port that Gunicorn will listen on
 EXPOSE 5000
 
-CMD [ "gunicorn", "-c", "gunicorn_config.py", "app:app" ]
+# Run the Gunicorn app
+CMD ["gunicorn", "-c", "gunicorn_config.py", "app:app"]
