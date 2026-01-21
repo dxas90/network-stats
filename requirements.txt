@@ -14,7 +14,7 @@ pluggy==1.6.0
 py==1.11.0
 pycodestyle==2.14.0
 pygments==2.19.2
-pyparsing==3.2.5
+pyparsing==3.3.2
 pytest==9.0.2
 toml==0.10.2
 werkzeug==3.1.5
