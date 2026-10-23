@@ -90,7 +90,7 @@
     - if: $CONTAINERFILE_PATH
     - if: $BUILD_CONTEXT != $CI_PROJECT_DIR
 
-# Deploy the tagged image using Kustomize and kubectl
+# Deploy the tagged image using Helm and kubectl
 # Works with GitLab-managed or self-managed clusters
 .deployment:
   image: dxas90/ci-tools:v0.0.2
@@ -104,9 +104,12 @@
     - crane auth login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" "$CI_REGISTRY"
     - crane copy "$CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA" "$CI_REGISTRY_IMAGE:$CI_COMMIT_TAG"
 
-    # Set image in Kustomize overlay and deploy to Kubernetes
-    - cd k8s/overlays/prod
-    - kustomize edit set image "$CI_REGISTRY_IMAGE:v$CI_COMMIT_TAG"
-    - kubectl -n "$KUBE_NAMESPACE" apply -k .
+    # Deploy via Helm upgrade (idempotent install-or-upgrade)
+    - helm upgrade --install network-stats ./k8s/network-stats
+        --namespace "$KUBE_NAMESPACE"
+        --create-namespace
+        --set image.repository="$CI_REGISTRY_IMAGE"
+        --set image.tag="$CI_COMMIT_TAG"
+        --wait
     - echo "Any other custom logic that needs to be done"
     - kubectl -n "$KUBE_NAMESPACE" rollout status deployment network-stats
