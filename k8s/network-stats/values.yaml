@@ -1,7 +1,7 @@
 replicaCount: 1
 
 image:
-  repository: "ghcr.io/dxas90/network-stats"
+  repository: "registry.gitlab.com/dxas90/network-stats"
   pullPolicy: "Always"
   tag: "latest"
 

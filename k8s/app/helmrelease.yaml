@@ -26,7 +26,7 @@ spec:
     keepHistory: false
   values:
     image:
-      repository: "ghcr.io/dxas90/network-stats"
+      repository: "registry.gitlab.com/dxas90/network-stats"
     env:
       variables:
         APP_ENV: "production"
