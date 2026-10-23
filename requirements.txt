@@ -13,7 +13,7 @@ packaging==26.3
 pluggy==1.6.0
 py==1.11.0
 pycodestyle==2.15.0
-pygments==2.20.0
+pygments==2.21.0
 pyparsing==3.3.3
 pytest==9.1.1
 toml==0.10.2
