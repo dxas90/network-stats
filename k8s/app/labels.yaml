@@ -1,0 +1,12 @@
+apiVersion: builtin
+kind: LabelTransformer
+metadata:
+  name: labels
+labels:
+  app.kubernetes.io/cluster: network-stats
+  app.kubernetes.io/custom-part-of: network-stats
+  app.kubernetes.io/managed-by: fluxcd
+  app.kubernetes.io/instance: network-stats
+fieldSpecs:
+  - path: metadata/labels
+    create: true
